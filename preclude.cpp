@@ -11,11 +11,8 @@ namespace fs = std::filesystem;
 //No cross-platform support for hidden files in <filesystem>. Sigh.
 bool is_hidden(const fs::path& p)
 {
-    //TODO: Use u8string?
     std::string fn{p.filename()};
-    //TODO: Use starts_with
-    if (fn.empty()) return true; //??
-    return '.' == fn[0];
+    return fn.starts_with(".");
 }
 
 void parse_it(const fs::path& p)
@@ -56,10 +53,10 @@ int main(const int argc, const char** argv)
                 }
                 continue;
             }
-            //TODO: Use contains
-            if (to_parse.count(i->path().extension()) > 0) {
+
+            if (to_parse.contains(i->path().extension())) {
                 parse_it(i->path());
-            } else if (dont_copy.count(i->path().extension()) < 1) {
+            } else if (not dont_copy.contains(i->path().extension())) {
                 copy_it(i->path());
             } else {
                 std::cout << "Skipping " << i->path() << '\n';
