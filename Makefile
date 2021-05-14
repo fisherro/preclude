@@ -1,6 +1,7 @@
 CXX=g++
 CXXFLAGS+=-std=c++20
 #CXXFLAGS+=-std=c++2a
+#CXXFLAGS+=-std=c++17
 CXXFLAGS+=-fsanitize=address
 #CXXFLAGS+=-fcoroutines
 #CXXFLAGS+=-pthread
