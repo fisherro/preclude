@@ -33,8 +33,6 @@ std::ostreambuf_iterator<char> process(const fs::path& root, const fs::path& fil
         R"RX(<!--\s*#include\s+(virtual|file)\s*=\s*"([^"]+)"\s*-->)RX"
     };
 
-    std::cout << "Processing " << file << '\n';
-
     if (not is_file_in_directory(file, root)) {
         std::cerr << std::quoted(file.string()) << " is not in " << std::quoted(root.string()) << '\n';
         return out;
@@ -66,7 +64,6 @@ std::ostreambuf_iterator<char> process(const fs::path& root, const fs::path& fil
 
 void process_file(const fs::path& root, const fs::path& file, const fs::path& outpath)
 {
-    std::cout << "root: " << root << "; file: " << file << "; out: " << outpath << '\n';
     fs::create_directories(outpath.parent_path());
     std::ofstream outstream{outpath};
     process(root, file, std::ostreambuf_iterator<char>{outstream});
@@ -86,9 +83,6 @@ int main(const int argc, const char** argv)
 
         const fs::path indir{argv[1]};
         const fs::path outdir{argv[2]};
-
-        std::cout << "In:\t" << indir << '\n';
-        std::cout << "Out:\t" << outdir << '\n';
 
         if (fs::exists(outdir)) {
             fs::remove_all(outdir);
