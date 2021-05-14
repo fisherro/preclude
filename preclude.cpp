@@ -1,5 +1,4 @@
-//TODO: Need a list of file extensions to parse.
-//TODO: Need a list of files/extensions to not copy.
+//TODO: Command-line options and config file to configure file extensions to process and not to copy.
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
@@ -46,6 +45,7 @@ std::ostreambuf_iterator<char> process(const fs::path& root, const fs::path& fil
     //(Or write an arbitrary length push-back stream adaptor.)
     std::ifstream fs{file};
     const std::string text(std::istreambuf_iterator<char>{fs}, {});
+    fs.close();
 
     std::sregex_iterator rx_iter{text.begin(), text.end(), rx};
     std::sregex_iterator rx_end;
@@ -67,24 +67,15 @@ std::ostreambuf_iterator<char> process(const fs::path& root, const fs::path& fil
 void process_file(const fs::path& root, const fs::path& file, const fs::path& outpath)
 {
     std::cout << "root: " << root << "; file: " << file << "; out: " << outpath << '\n';
-#if 0
     fs::create_directories(outpath.parent_path());
     std::ofstream outstream{outpath};
-    process(root, file, std::ostreambuf_iterator{outstream});
-#endif
-    process(root, file, std::ostreambuf_iterator{std::cout});
-    std::cout << '\n';
-}
-
-void copy_file(const fs::path& p)
-{
-    std::cout << "Copying " << p << '\n';
+    process(root, file, std::ostreambuf_iterator<char>{outstream});
 }
 
 int main(const int argc, const char** argv)
 {
     try {
-        const std::unordered_set<std::string> to_parse{".html"};
+        const std::unordered_set<std::string> to_process{".html"};
         const std::unordered_set<std::string> dont_copy{".htmlf"};
 
         if (argc < 3) {
@@ -98,6 +89,10 @@ int main(const int argc, const char** argv)
 
         std::cout << "In:\t" << indir << '\n';
         std::cout << "Out:\t" << outdir << '\n';
+
+        if (fs::exists(outdir)) {
+            fs::remove_all(outdir);
+        }
 
         //To prevent recursion into hidden directories,
         //we need access to the iterator.
@@ -115,13 +110,12 @@ int main(const int argc, const char** argv)
             }
 
             const fs::path outpath{outdir / fs::relative(inpath, indir)};
-            if (to_parse.contains(inpath.extension())) {
+            const auto extension{inpath.extension()};
+            if (to_process.contains(extension)) {
                 process_file(indir, inpath, outpath);
-            } else if (not dont_copy.contains(inpath.extension())) {
-                copy_file(inpath, outpath);
-                //fs::copy_file(inpath, outpath);
-            } else {
-                std::cout << "Skipping " << inpath << '\n';
+            } else if (not dont_copy.contains(extension)) {
+                fs::create_directories(outpath.parent_path());
+                fs::copy_file(inpath, outpath);
             }
         }
 
