@@ -9,6 +9,7 @@ CXXFLAGS+=-O3
 CXXFLAGS+=-Wall
 CXXFLAGS+=-Wextra
 CXXFLAGS+=-Werror=vla
+CXXFLAGS+=-Wsuggest-override
 CXXFLAGS+=-pedantic
 CXXFLAGS+=-pedantic-errors
 
